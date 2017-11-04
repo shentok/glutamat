@@ -10,6 +10,7 @@ add_library(glutamat SHARED
     FlagSingletonUsageAstVisitor.cpp
     GlutamatAstAction.cpp
     GlutamatAstConsumer.cpp
+    NonStaticPrivateMethodsAstVisitor.cpp
     main.cpp
 )
 set_target_properties(glutamat PROPERTIES
