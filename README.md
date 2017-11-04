@@ -10,10 +10,6 @@ reference to the wrapped object, often named `getInstance()`. Those properties
 (except the name) are checked by the plugin and, when fulfilled, a warning is
 raised.
 
-### Todo
-
-- [ ] Warn when encountering *usage* of such methods
-
 
 How to build
 ------------

@@ -44,6 +44,21 @@ bool SingletonAstVisitor::VisitFunctionDecl(const clang::FunctionDecl *function)
     return true;
 }
 
+bool SingletonAstVisitor::VisitCallExpr(const clang::CallExpr *call)
+{
+    const clang::FunctionDecl *function = call->getDirectCallee();
+    if (function &&
+        m_sourceManager.isInMainFile(call->getLocStart()) &&
+        looksLikeSingletonAccessor(*function)) {
+        const unsigned id = m_diagnosticsEngine.getCustomDiagID(clang::DiagnosticsEngine::Warning, "Usage of suspicious function or static method '%0' having no arguments but returning pointer or reference to writable object");
+        const clang::DiagnosticBuilder builder = m_diagnosticsEngine.Report(call->getLocStart(), id);
+        builder << function->getQualifiedNameAsString();
+        builder.setForceEmit();
+    }
+
+    return true;
+}
+
 bool SingletonAstVisitor::looksLikeSingletonAccessor(const clang::FunctionDecl &function)
 {
     auto method = clang::dyn_cast<const clang::CXXMethodDecl>(&function);

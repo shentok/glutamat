@@ -33,6 +33,8 @@ public:
 
     bool VisitFunctionDecl(const clang::FunctionDecl *function);
 
+    bool VisitCallExpr(const clang::CallExpr *call);
+
 private:
     static bool looksLikeSingletonAccessor(const clang::FunctionDecl &function);
 
