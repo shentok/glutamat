@@ -33,7 +33,8 @@ SingletonAstVisitor::SingletonAstVisitor(clang::DiagnosticsEngine &diagnosticsEn
 bool SingletonAstVisitor::VisitFunctionDecl(const clang::FunctionDecl *function)
 {
     if (function->isThisDeclarationADefinition() &&
-        m_sourceManager.isInMainFile(function->getLocation()) &&
+        !m_sourceManager.isInSystemHeader(function->getLocation()) &&
+        !m_sourceManager.isInSystemMacro(function->getLocation()) &&
         looksLikeSingletonAccessor(*function)) {
         const unsigned id = m_diagnosticsEngine.getCustomDiagID(clang::DiagnosticsEngine::Warning, "Suspicious function or static method '%0' having no arguments but returning pointer or reference to writable object");
         const clang::DiagnosticBuilder builder = m_diagnosticsEngine.Report(function->getLocStart(), id);
@@ -48,7 +49,8 @@ bool SingletonAstVisitor::VisitCallExpr(const clang::CallExpr *call)
 {
     const clang::FunctionDecl *function = call->getDirectCallee();
     if (function &&
-        m_sourceManager.isInMainFile(call->getLocStart()) &&
+        !m_sourceManager.isInSystemHeader(function->getLocation()) &&
+        !m_sourceManager.isInSystemMacro(function->getLocation()) &&
         looksLikeSingletonAccessor(*function)) {
         const unsigned id = m_diagnosticsEngine.getCustomDiagID(clang::DiagnosticsEngine::Warning, "Usage of suspicious function or static method '%0' having no arguments but returning pointer or reference to writable object");
         const clang::DiagnosticBuilder builder = m_diagnosticsEngine.Report(call->getLocStart(), id);
