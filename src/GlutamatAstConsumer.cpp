@@ -22,14 +22,17 @@
 #include <clang/AST/ASTContext.h>
 #include <clang/Frontend/CompilerInstance.h>
 
-GlutamatAstConsumer::GlutamatAstConsumer(const clang::CompilerInstance &compiler) :
+GlutamatAstConsumer::GlutamatAstConsumer(const clang::CompilerInstance &compiler, Level level) :
     clang::ASTConsumer(),
-    m_diagnosticsEngine(compiler.getDiagnostics())
+    m_diagnosticsEngine(compiler.getDiagnostics()),
+    m_level(level)
 {
 }
 
 void GlutamatAstConsumer::HandleTranslationUnit(clang::ASTContext &astContext)
 {
-    SingletonAstVisitor visitor(m_diagnosticsEngine, astContext.getSourceManager());
-    visitor.TraverseDecl(astContext.getTranslationUnitDecl());
+    if (m_level == Level::All) {
+        SingletonAstVisitor visitor(m_diagnosticsEngine, astContext.getSourceManager());
+        visitor.TraverseDecl(astContext.getTranslationUnitDecl());
+    }
 }

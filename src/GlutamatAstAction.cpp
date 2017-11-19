@@ -25,6 +25,16 @@
 
 const char *const GlutamatAstAction::plugin_name = "glutamat";
 
+llvm::cl::opt<GlutamatAstConsumer::Level> GlutamatAstAction::s_level(
+        "level",
+        llvm::cl::desc("Set the analysis level:"),
+        llvm::cl::values(
+            clEnumValN(GlutamatAstConsumer::Level::Evil, "evil", "Find calls to <<Singleton::getInstance()>> inside Singleton's own non-static methods"),
+            clEnumValN(GlutamatAstConsumer::Level::Bad, "bad", "Find calls to <<Singleton::getInstance()>> inside Singleton's own methods"),
+            clEnumValN(GlutamatAstConsumer::Level::All, "all", "Find definitions and usages of singletons (default)")),
+        llvm::cl::init(GlutamatAstConsumer::Level::All));
+
+
 GlutamatAstAction::GlutamatAstAction() :
     clang::PluginASTAction()
 {}
@@ -35,10 +45,22 @@ std::unique_ptr<clang::ASTConsumer> GlutamatAstAction::CreateASTConsumer(clang::
         return std::unique_ptr<clang::ASTConsumer>(new clang::ASTConsumer()); // dummy consumer
     }
 
-    return std::unique_ptr<clang::ASTConsumer>(new GlutamatAstConsumer(compiler));
+    return std::unique_ptr<clang::ASTConsumer>(new GlutamatAstConsumer(compiler, s_level));
 }
 
-bool GlutamatAstAction::ParseArgs(const clang::CompilerInstance &, const std::vector<std::string> &)
+bool GlutamatAstAction::ParseArgs(const clang::CompilerInstance &, const std::vector<std::string> &arguments)
 {
+    std::vector<const char *> argumentPointers;
+
+    {
+        // make llvm::cl::ParseCommandLineOptions happy
+        argumentPointers.push_back(plugin_name);
+        for (auto & argument : arguments) {
+            argumentPointers.push_back(argument.c_str());
+        }
+    }
+
+    llvm::cl::ParseCommandLineOptions(argumentPointers.size(), &argumentPointers.front());
+
     return true;
 }

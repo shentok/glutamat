@@ -19,6 +19,8 @@
 
 #include <clang/AST/ASTConsumer.h>
 
+#include "SingletonAstVisitor.h"
+
 namespace clang {
 class CompilerInstance;
 class DiagnosticsEngine;
@@ -28,7 +30,13 @@ class DiagnosticsEngine;
 class GlutamatAstConsumer : public clang::ASTConsumer
 {
 public:
-    GlutamatAstConsumer(const clang::CompilerInstance &compiler);
+    enum class Level {
+        Evil,
+        Bad,
+        All
+    };
+
+    GlutamatAstConsumer(const clang::CompilerInstance &compiler, Level level);
     GlutamatAstConsumer(const GlutamatAstConsumer &) = delete;
     GlutamatAstConsumer &operator=(const GlutamatAstConsumer &) = delete;
 
@@ -36,4 +44,5 @@ public:
 
 private:
     clang::DiagnosticsEngine &m_diagnosticsEngine;
+    Level m_level;
 };

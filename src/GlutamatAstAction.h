@@ -19,6 +19,8 @@
 
 #include <clang/Frontend/FrontendAction.h>
 
+#include "GlutamatAstConsumer.h"
+
 
 // The const analyser plugin... Implements the neccessary interface
 // to be a plugin. Parse command line arguments and dispatch the
@@ -33,7 +35,10 @@ public:
 
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &compiler, llvm::StringRef) override;
 
-    bool ParseArgs(const clang::CompilerInstance &, const std::vector<std::string> &) override;
+    bool ParseArgs(const clang::CompilerInstance &, const std::vector<std::string> &arguments) override;
 
     static const char *const plugin_name;
+
+private:
+    static llvm::cl::opt<GlutamatAstConsumer::Level> s_level;
 };
