@@ -17,7 +17,8 @@
 
 #include "GlutamatAstConsumer.h"
 
-#include "SingletonAstVisitor.h"
+#include "FlagSingletonDefinitionsAstVisitor.h"
+#include "FlagSingletonUsageAstVisitor.h"
 
 #include <clang/AST/ASTContext.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -32,7 +33,12 @@ GlutamatAstConsumer::GlutamatAstConsumer(const clang::CompilerInstance &compiler
 void GlutamatAstConsumer::HandleTranslationUnit(clang::ASTContext &astContext)
 {
     if (m_level == Level::All) {
-        SingletonAstVisitor visitor(m_diagnosticsEngine, astContext.getSourceManager());
+        FlagSingletonDefinitionsAstVisitor visitor(m_diagnosticsEngine, astContext.getSourceManager());
+        visitor.TraverseDecl(astContext.getTranslationUnitDecl());
+    }
+
+    if (m_level == Level::All) {
+        FlagSingletonUsageAstVisitor visitor(m_diagnosticsEngine, astContext.getSourceManager());
         visitor.TraverseDecl(astContext.getTranslationUnitDecl());
     }
 }

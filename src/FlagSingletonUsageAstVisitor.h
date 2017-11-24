@@ -22,16 +22,14 @@
 namespace clang {
 class SourceManager;
 class DiagnosticsEngine;
-class Decl;
+class CallExpr;
 class FunctionDecl;
 }
 
-class SingletonAstVisitor : public clang::RecursiveASTVisitor<SingletonAstVisitor>
+class FlagSingletonUsageAstVisitor : public clang::RecursiveASTVisitor<FlagSingletonUsageAstVisitor>
 {
 public:
-    SingletonAstVisitor(clang::DiagnosticsEngine &diagnosticsEngine, const clang::SourceManager &sourceManager);
-
-    bool VisitFunctionDecl(const clang::FunctionDecl *function);
+    FlagSingletonUsageAstVisitor(clang::DiagnosticsEngine &diagnosticsEngine, const clang::SourceManager &sourceManager);
 
     bool VisitCallExpr(const clang::CallExpr *call);
 

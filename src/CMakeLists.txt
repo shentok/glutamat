@@ -5,9 +5,10 @@ add_definitions(${CLANG_DEFINITIONS})
 add_definitions(-std=c++11)
 
 add_library(glutamat SHARED
+    FlagSingletonDefinitionsAstVisitor.cpp
+    FlagSingletonUsageAstVisitor.cpp
     GlutamatAstAction.cpp
     GlutamatAstConsumer.cpp
-    SingletonAstVisitor.cpp
     main.cpp
 )
 set_target_properties(glutamat PROPERTIES

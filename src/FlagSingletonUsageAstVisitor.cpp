@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SingletonAstVisitor.h"
+#include "FlagSingletonUsageAstVisitor.h"
 
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Decl.h>
@@ -24,28 +24,13 @@
 #include <clang/Basic/SourceManager.h>
 
 
-SingletonAstVisitor::SingletonAstVisitor(clang::DiagnosticsEngine &diagnosticsEngine, const clang::SourceManager &sourceManager) :
+FlagSingletonUsageAstVisitor::FlagSingletonUsageAstVisitor(clang::DiagnosticsEngine &diagnosticsEngine, const clang::SourceManager &sourceManager) :
     m_diagnosticsEngine(diagnosticsEngine),
     m_sourceManager(sourceManager)
 {
 }
 
-bool SingletonAstVisitor::VisitFunctionDecl(const clang::FunctionDecl *function)
-{
-    if (function->isThisDeclarationADefinition() &&
-        !m_sourceManager.isInSystemHeader(function->getLocation()) &&
-        !m_sourceManager.isInSystemMacro(function->getLocation()) &&
-        looksLikeSingletonAccessor(*function)) {
-        const unsigned id = m_diagnosticsEngine.getCustomDiagID(clang::DiagnosticsEngine::Warning, "Suspicious function or static method '%0' having no arguments but returning pointer or reference to writable object");
-        const clang::DiagnosticBuilder builder = m_diagnosticsEngine.Report(function->getLocStart(), id);
-        builder << function->getNameAsString();
-        builder.setForceEmit();
-    }
-
-    return true;
-}
-
-bool SingletonAstVisitor::VisitCallExpr(const clang::CallExpr *call)
+bool FlagSingletonUsageAstVisitor::VisitCallExpr(const clang::CallExpr *call)
 {
     const clang::FunctionDecl *function = call->getDirectCallee();
     if (function &&
@@ -61,7 +46,7 @@ bool SingletonAstVisitor::VisitCallExpr(const clang::CallExpr *call)
     return true;
 }
 
-bool SingletonAstVisitor::looksLikeSingletonAccessor(const clang::FunctionDecl &function)
+bool FlagSingletonUsageAstVisitor::looksLikeSingletonAccessor(const clang::FunctionDecl &function)
 {
     auto method = clang::dyn_cast<const clang::CXXMethodDecl>(&function);
 

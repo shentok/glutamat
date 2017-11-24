@@ -17,30 +17,25 @@
 
 #pragma once
 
-#include <clang/AST/ASTConsumer.h>
+#include <clang/AST/RecursiveASTVisitor.h>
 
 namespace clang {
-class CompilerInstance;
+class SourceManager;
 class DiagnosticsEngine;
+class Decl;
+class FunctionDecl;
 }
 
-// It runs the pseudo const analysis on the given translation unit.
-class GlutamatAstConsumer : public clang::ASTConsumer
+class FlagSingletonDefinitionsAstVisitor : public clang::RecursiveASTVisitor<FlagSingletonDefinitionsAstVisitor>
 {
 public:
-    enum class Level {
-        Evil,
-        Bad,
-        All
-    };
+    FlagSingletonDefinitionsAstVisitor(clang::DiagnosticsEngine &diagnosticsEngine, const clang::SourceManager &sourceManager);
 
-    GlutamatAstConsumer(const clang::CompilerInstance &compiler, Level level);
-    GlutamatAstConsumer(const GlutamatAstConsumer &) = delete;
-    GlutamatAstConsumer &operator=(const GlutamatAstConsumer &) = delete;
-
-    void HandleTranslationUnit(clang::ASTContext &astContext) override;
+    bool VisitFunctionDecl(const clang::FunctionDecl *function);
 
 private:
+    static bool looksLikeSingletonAccessor(const clang::FunctionDecl &function);
+
     clang::DiagnosticsEngine &m_diagnosticsEngine;
-    Level m_level;
+    const clang::SourceManager &m_sourceManager;
 };
