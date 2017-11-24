@@ -11,5 +11,7 @@ public:
 
     static Singleton const *getPointerConst();
 
+    static int &getIntReference();
+
     void nonStaticMethod();
 };

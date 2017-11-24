@@ -6,6 +6,7 @@ add_definitions(-std=c++11)
 
 add_library(glutamat SHARED
     FlagSingletonDefinitionsAstVisitor.cpp
+    FlagSingletonOwnUsageAstVisitor.cpp
     FlagSingletonUsageAstVisitor.cpp
     GlutamatAstAction.cpp
     GlutamatAstConsumer.cpp
